@@ -1,0 +1,1397 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>MediCare - Healthcare Portal</title>
+  <meta name="description" content="Online healthcare portal for patients and doctors">
+  <meta name="keywords" content="healthcare, doctor, patient, appointment, medical">
+
+  <!-- Favicons -->
+  <link href="assets/img/favicon.png" rel="icon">
+  <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+    rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="assets/vendor/aos/aos.css" rel="stylesheet">
+  <link href="assets/vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+  <link href="assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+  <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+
+  <!-- Main CSS File -->
+  <link href="assets/css/main.css" rel="stylesheet">
+
+  <!-- PayHere SDK -->
+  <script src="https://www.payhere.lk/lib/payhere.js"></script>
+
+  <!-- ZegoCloud SDK -->
+  <script src="https://zegocloud.github.io/zego-express-webrtc/sdk/js/2.15.0/ZegoExpressEngine.min.js"></script>
+
+  <!-- Chatbot Custom CSS -->
+  <style>
+    .chatbot-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1000;
+      background-color: #007bff;
+      color: white;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    .chatbot-btn:hover {
+      transform: scale(1.1);
+    }
+
+    .chatbot-container {
+      height: 500px;
+      display: flex;
+      flex-direction: column;
+      background: #f8f9fa;
+    }
+
+    .chatbot-header {
+      background: #007bff;
+      color: white;
+      padding: 15px;
+      border-radius: 10px 10px 0 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .chatbot-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 15px;
+      background: white;
+    }
+
+    .chatbot-message {
+      margin-bottom: 15px;
+      display: flex;
+      align-items: flex-start;
+    }
+
+    .chatbot-message.user {
+      justify-content: flex-end;
+    }
+
+    .chatbot-message.bot {
+      justify-content: flex-start;
+    }
+
+    .chatbot-message .message-content {
+      max-width: 70%;
+      padding: 10px 15px;
+      border-radius: 15px;
+      position: relative;
+    }
+
+    .chatbot-message.user .message-content {
+      background: #007bff;
+      color: white;
+      border-bottom-right-radius: 0;
+    }
+
+    .chatbot-message.bot .message-content {
+      background: #e9ecef;
+      color: #333;
+      border-bottom-left-radius: 0;
+    }
+
+    .chatbot-message.bot .suggested-specialty {
+      margin-top: 10px;
+      font-style: italic;
+      color: #555;
+    }
+
+    .chatbot-message.bot .recommended-doctors {
+      margin-top: 10px;
+      padding-left: 15px;
+    }
+
+    .chatbot-input {
+      padding: 15px;
+      border-top: 1px solid #ddd;
+      background: #f8f9fa;
+    }
+
+    .chatbot-input .input-group {
+      margin-bottom: 0;
+    }
+
+    .chatbot-input input {
+      border-radius: 20px;
+    }
+
+    .chatbot-input button {
+      border-radius: 20px;
+    }
+  </style>
+</head>
+
+<body class="index-page">
+
+  <!-- Chatbot Button -->
+  <div class="chatbot-btn" id="chatbot-btn" title="Chat with MediCare Assistant">
+    <i class="bi bi-chat-dots fs-4"></i>
+  </div>
+
+  <!-- Chatbot Modal -->
+  <div class="modal fade" id="chatbotModal" tabindex="-1" aria-labelledby="chatbotModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="chatbot-header">
+          <h5 class="modal-title" id="chatbotModalLabel">MediCare Assistant</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="chatbot-container">
+          <div class="chatbot-messages" id="chatbot-messages">
+            <div class="chatbot-message bot">
+              <div class="message-content">
+                Welcome to MediCare Assistant! I'm here to help you with your health concerns. Please describe your symptoms.
+              </div>
+            </div>
+          </div>
+          <div class="chatbot-input">
+            <div class="input-group">
+              <input type="text" class="form-control" id="chatbot-input" placeholder="Describe your symptoms...">
+              <button class="btn btn-primary" id="chatbot-send">Send</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <header id="header" class="header sticky-top">
+    <div class="topbar d-flex align-items-center">
+      <div class="container d-flex justify-content-center justify-content-md-between">
+        <div class="contact-info d-flex align-items-center">
+          <i class="bi bi-envelope d-flex align-items-center"><a
+              href="mailto:contact@medicare.com">contact@medicare.com</a></i>
+          <i class="bi bi-phone d-flex align-items-center ms-4"><span>+1 5589 55488 55</span></i>
+        </div>
+        <div id="auth-links" class="social-links d-none d-md-flex align-items-center">
+          <a href="#" id="login-btn" class="twitter"><i class="bi bi-box-arrow-in-right"></i> Login</a>
+          <a href="#" id="register-btn" class="facebook"><i class="bi bi-person-plus"></i> Register</a>
+        </div>
+        <div id="user-info" class="social-links d-none d-md-flex align-items-center" style="display: none;">
+          <span id="user-role" class="me-2"></span>
+          <a href="#" id="dashboard-btn" class="twitter me-2"><i class="bi bi-speedometer2"></i> Dashboard</a>
+          <a href="#" id="logout-btn" class="facebook"><i class="bi bi-box-arrow-right"></i> Logout</a>
+        </div>
+      </div>
+    </div><!-- End Top Bar -->
+
+    <div class="branding d-flex align-items-center">
+      <div class="container position-relative d-flex align-items-center justify-content-between">
+        <a href="index.html" class="logo d-flex align-items-center me-auto">
+          <h1 class="sitename">CareMate</h1>
+        </a>
+
+        <nav id="navmenu" class="navmenu">
+          <ul>
+            <li><a href="#hero" class="active">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#services">Services</a></li>
+            <li><a href="#doctors">Doctors</a></li>
+            <li><a href="#appointment">Appointments</a></li>
+            <li><a href="#contact">Contact</a></li>
+          </ul>
+          <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+        </nav>
+
+        <a class="cta-btn d-none d-sm-block" href="#appointment">Make an Appointment</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <!-- Hero Section -->
+    <section id="hero" class="hero section light-background">
+      <img src="assets/img/hero-bg.jpg" alt="" data-aos="fade-in">
+      <div class="container position-relative">
+        <div class="welcome position-relative" data-aos="fade-down" data-aos-delay="100">
+          <h2>WELCOME TO MEDICARE</h2>
+          <p>Your trusted online healthcare platform connecting patients with verified doctors</p>
+        </div>
+        <div class="content row gy-4">
+          <div class="col-lg-4 d-flex align-items-stretch">
+            <div class="why-box" data-aos="zoom-out" data-aos-delay="200">
+              <h3>Why Choose CareMate?</h3>
+              <p>
+                Access to verified doctors, easy appointment scheduling, secure video consultations,
+                and electronic prescriptions - all in one platform designed for your healthcare needs.
+              </p>
+              <div class="text-center">
+                <a href="#about" class="more-btn"><span>Learn More</span> <i class="bi bi-chevron-right"></i></a>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-8 d-flex align-items-stretch">
+            <div class="d-flex flex-column justify-content-center">
+              <div class="row gy-4">
+                <div class="col-xl-4 d-flex align-items-stretch">
+                  <div class="icon-box" data-aos="zoom-out" data-aos-delay="300">
+                    <i class="bi bi-calendar-check"></i>
+                    <h4>Easy Appointments</h4>
+                    <p>Book appointments with specialists at your convenience</p>
+                  </div>
+                </div>
+                <div class="col-xl-4 d-flex align-items-stretch">
+                  <div class="icon-box" data-aos="zoom-out" data-aos-delay="400">
+                    <i class="bi bi-camera-video"></i>
+                    <h4>Video Consultations</h4>
+                    <p>Secure video calls with your healthcare provider</p>
+                  </div>
+                </div>
+                <div class="col-xl-4 d-flex align-items-stretch">
+                  <div class="icon-box" data-aos="zoom-out" data-aos-delay="500">
+                    <i class="bi bi-prescription"></i>
+                    <h4>E-Prescriptions</h4>
+                    <p>Digital prescriptions sent directly to your pharmacy</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section><!-- /Hero Section -->
+
+    <!-- About Section -->
+    <section id="about" class="about section">
+      <div class="container">
+        <div class="row gy-4 gx-5">
+          <div class="col-lg-6 position-relative align-self-start" data-aos="fade-up" data-aos-delay="200">
+            <img src="assets/img/about.jpg" class="img-fluid" alt="">
+            <a href="https://www.youtube.com/watch?v=Y7f98aduVJ8" class="glightbox pulsating-play-btn"></a>
+          </div>
+          <div class="col-lg-6 content" data-aos="fade-up" data-aos-delay="100">
+            <h3>About Us</h3>
+            <p>
+              CareMate is a comprehensive healthcare platform designed to bridge the gap between patients and healthcare
+              providers.
+              Our mission is to make quality healthcare accessible, convenient, and efficient for everyone.
+            </p>
+            <ul>
+              <li>
+                <i class="fa-solid fa-user-doctor"></i>
+                <div>
+                  <h5>Verified Healthcare Professionals</h5>
+                  <p>All doctors on our platform are thoroughly vetted and verified</p>
+                </div>
+              </li>
+              <li>
+                <i class="fa-solid fa-lock"></i>
+                <div>
+                  <h5>Secure Platform</h5>
+                  <p>Your health data is protected with industry-standard security measures</p>
+                </div>
+              </li>
+              <li>
+                <i class="fa-solid fa-clock"></i>
+                <div>
+                  <h5>24/7 Availability</h5>
+                  <p>Find doctors available at times that work for your schedule</p>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section><!-- /About Section -->
+
+    <!-- Stats Section -->
+    <section id="stats" class="stats section light-background">
+      <div class="container" data-aos="fade-up" data-aos-delay="100">
+        <div class="row gy-4">
+          <div class="col-lg-3 col-md-6 d-flex flex-column align-items-center">
+            <i class="fa-solid fa-user-doctor"></i>
+            <div class="stats-item">
+              <span id="doctors-count" data-purecounter-start="0" data-purecounter-end="0" data-purecounter-duration="1"
+                class="purecounter"></span>
+              <p>Verified Doctors</p>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6 d-flex flex-column align-items-center">
+            <i class="fa-solid fa-users"></i>
+            <div class="stats-item">
+              <span id="patients-count" data-purecounter-start="0" data-purecounter-end="0"
+                data-purecounter-duration="1" class="purecounter"></span>
+              <p>Happy Patients</p>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6 d-flex flex-column align-items-center">
+            <i class="fas fa-calendar-check"></i>
+            <div class="stats-item">
+              <span id="appointments-count" data-purecounter-start="0" data-purecounter-end="0"
+                data-purecounter-duration="1" class="purecounter"></span>
+              <p>Appointments</p>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6 d-flex flex-column align-items-center">
+            <i class="fas fa-prescription-bottle-alt"></i>
+            <div class="stats-item">
+              <span id="prescriptions-count" data-purecounter-start="0" data-purecounter-end="0"
+                data-purecounter-duration="1" class="purecounter"></span>
+              <p>Prescriptions</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section><!-- /Stats Section -->
+
+    <!-- Services Section -->
+    <section id="services" class="services section">
+      <div class="container section-title" data-aos="fade-up">
+        <h2>Our Services</h2>
+        <p>Comprehensive healthcare services designed for your convenience</p>
+      </div>
+      <div class="container">
+        <div class="row gy-4">
+          <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+            <div class="service-item position-relative">
+              <div class="icon">
+                <i class="fas fa-calendar-check"></i>
+              </div>
+              <h3>Appointment Booking</h3>
+              <p>Schedule appointments with specialists at your convenience with our easy-to-use booking system.</p>
+            </div>
+          </div>
+          <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
+            <div class="service-item position-relative">
+              <div class="icon">
+                <i class="fas fa-video"></i>
+              </div>
+              <h3>Video Consultations</h3>
+              <p>Secure video calls with healthcare providers from the comfort of your home.</p>
+            </div>
+          </div>
+          <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
+            <div class="service-item position-relative">
+              <div class="icon">
+                <i class="fas fa-prescription"></i>
+              </div>
+              <h3>E-Prescriptions</h3>
+              <p>Digital prescriptions sent directly to your preferred pharmacy.</p>
+            </div>
+          </div>
+          <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="400">
+            <div class="service-item position-relative">
+              <div class="icon">
+                <i class="fas fa-comments"></i>
+              </div>
+              <h3>Medical Chatbot</h3>
+              <p>AI-powered symptom checker and initial medical advice.</p>
+            </div>
+          </div>
+          <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="500">
+            <div class="service-item position-relative">
+              <div class="icon">
+                <i class="fas fa-file-medical"></i>
+              </div>
+              <h3>Medical Records</h3>
+              <p>Secure storage and access to your medical history and reports.</p>
+            </div>
+          </div>
+          <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="600">
+            <div class="service-item position-relative">
+              <div class="icon">
+                <i class="fas fa-bell"></i>
+              </div>
+              <h3>Reminders</h3>
+              <p>Medication and appointment reminders to keep you on track.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section><!-- /Services Section -->
+
+    <!-- Appointment Section -->
+    <section id="appointment" class="appointment section">
+      <div class="container section-title" data-aos="fade-up">
+        <h2>Book an Appointment</h2>
+        <p>Schedule your consultation with our verified healthcare professionals</p>
+      </div>
+      <div class="container" data-aos="fade-up" data-aos-delay="100">
+        <form id="appointment-form" class="php-email-form">
+          <div class="row">
+            <div class="col-md-4 form-group">
+              <input type="text" name="name" class="form-control" id="name" placeholder="Your Name" required>
+            </div>
+            <div class="col-md-4 form-group mt-3 mt-md-0">
+              <input type="email" class="form-control" name="email" id="email" placeholder="Your Email" required>
+            </div>
+            <div class="col-md-4 form-group mt-3 mt-md-0">
+              <input type="tel" class="form-control" name="phone" id="phone" placeholder="Your Phone" required>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-4 form-group mt-3">
+              <select name="specialty" id="specialty" class="form-select" required>
+                <option value="">Select Specialty</option>
+                <option value="Cardiology">Cardiology</option>
+                <option value="Neurology">Neurology</option>
+                <option value="Pediatrics">Pediatrics</option>
+                <option value="Dermatology">Dermatology</option>
+                <option value="General Practice">General Practice</option>
+              </select>
+            </div>
+            <div class="col-md-4 form-group mt-3">
+              <select name="doctor" id="doctor" class="form-select" required>
+                <option value="">Select Doctor</option>
+                <!-- Doctors will be populated via API -->
+              </select>
+            </div>
+            <div class="col-md-4 form-group mt-3">
+              <input type="datetime-local" name="date" class="form-control datepicker" id="date"
+                placeholder="Appointment Date" required>
+            </div>
+          </div>
+          <div class="form-group mt-3">
+            <textarea class="form-control" name="symptoms" rows="5"
+              placeholder="Describe your symptoms (Optional)"></textarea>
+          </div>
+          <div class="mt-3">
+            <div class="loading">Loading</div>
+            <div class="error-message"></div>
+            <div class="sent-message">Your appointment request has been sent successfully. Thank you!</div>
+            <div class="text-center"><button type="submit">Book Appointment</button></div>
+          </div>
+        </form>
+      </div>
+    </section><!-- /Appointment Section -->
+
+    <!-- Doctors Section -->
+    <section id="doctors" class="doctors section">
+      <div class="container section-title" data-aos="fade-up">
+        <h2>Our Doctors</h2>
+        <p>Meet our team of verified healthcare professionals</p>
+      </div>
+      <div class="container">
+        <div class="row gy-4" id="doctors-list">
+          <!-- Doctors will be populated via API -->
+        </div>
+      </div>
+    </section><!-- /Doctors Section -->
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact section">
+      <div class="container section-title" data-aos="fade-up">
+        <h2>Contact Us</h2>
+        <p>Have questions? Get in touch with our support team</p>
+      </div>
+      <div class="mb-5" data-aos="fade-up" data-aos-delay="200">
+        <iframe style="border:0; width: 100%; height: 270px;"
+          src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d48389.78314118045!2d-74.006138!3d40.710059!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c25a22a3bda30d%3A0xb89d1fe6bc499443!2sDowntown%20Conference%20Center!5e0!3m2!1sen!2us!4v1676961268712!5m2!1sen!2us"
+          frameborder="0" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div>
+      <div class="container" data-aos="fade-up" data-aos-delay="100">
+        <div class="row gy-4">
+          <div class="col-lg-4">
+            <div class="info-item d-flex" data-aos="fade-up" data-aos-delay="300">
+              <i class="bi bi-geo-alt flex-shrink-0"></i>
+              <div>
+                <h3>Location</h3>
+                <p>A108 Adam Street, New York, NY 535022</p>
+              </div>
+            </div>
+            <div class="info-item d-flex" data-aos="fade-up" data-aos-delay="400">
+              <i class="bi bi-telephone flex-shrink-0"></i>
+              <div>
+                <h3>Call Us</h3>
+                <p>+1 5589 55488 55</p>
+              </div>
+            </div>
+            <div class="info-item d-flex" data-aos="fade-up" data-aos-delay="500">
+              <i class="bi bi-envelope flex-shrink-0"></i>
+              <div>
+                <h3>Email Us</h3>
+                <p>info@medicare.com</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-8">
+            <form id="contact-form" class="php-email-form" data-aos="fade-up" data-aos-delay="200">
+              <div class="row gy-4">
+                <div class="col-md-6">
+                  <input type="text" name="name" class="form-control" placeholder="Your Name" required>
+                </div>
+                <div class="col-md-6">
+                  <input type="email" class="form-control" name="email" placeholder="Your Email" required>
+                </div>
+                <div class="col-md-12">
+                  <input type="text" class="form-control" name="subject" placeholder="Subject" required>
+                </div>
+                <div class="col-md-12">
+                  <textarea class="form-control" name="message" rows="6" placeholder="Message" required></textarea>
+                </div>
+                <div class="col-md-12 text-center">
+                  <div class="loading">Loading</div>
+                  <div class="error-message"></div>
+                  <div class="sent-message">Your message has been sent. Thank you!</div>
+                  <button type="submit">Send Message</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section><!-- /Contact Section -->
+
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="loginModalLabel">Login to Your Account</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="login-form">
+              <div class="mb-3">
+                <label for="login-email" class="form-label">Email address</label>
+                <input type="email" class="form-control" id="login-email" required>
+              </div>
+              <div class="mb-3">
+                <label for="login-password" class="form-label">Password</label>
+                <input type="password" class="form-control" id="login-password" required>
+              </div>
+              <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="remember-me">
+                <label class="form-check-label" for="remember-me">Remember me</label>
+              </div>
+              <button type="submit" class="btn btn-primary w-100">Login</button>
+            </form>
+            <div class="text-center mt-3">
+              <p>Don't have an account? <a href="#" id="show-register">Register</a></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="registerModalLabel">Create an Account</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="register-form">
+              <div class="mb-3">
+                <label for="register-name" class="form-label">Full Name</label>
+                <input type="text" class="form-control" id="register-name" required>
+              </div>
+              <div class="mb-3">
+                <label for="register-email" class="form-label">Email address</label>
+                <input type="email" class="form-control" id="register-email" required>
+              </div>
+              <div class="mb-3">
+                <label for="register-password" class="form-label">Password</label>
+                <input type="password" class="form-control" id="register-password" required>
+              </div>
+              <div class="mb-3">
+                <label for="register-confirm-password" class="form-label">Confirm Password</label>
+                <input type="password" class="form-control" id="register-confirm-password" required>
+              </div>
+              <div class="mb-3">
+                <label for="register-role" class="form-label">I am a</label>
+                <select class="form-select" id="register-role" required>
+                  <option value="">Select Role</option>
+                  <option value="PATIENT">Patient</option>
+                  <option value="DOCTOR">Doctor</option>
+                </select>
+              </div>
+              <div id="doctor-fields" style="display: none;">
+                <div class="mb-3">
+                  <label for="register-specialty" class="form-label">Specialty</label>
+                  <input type="text" class="form-control" id="register-specialty">
+                </div>
+                <div class="mb-3">
+                  <label for="register-availability" class="form-label">Availability</label>
+                  <input type="text" class="form-control" id="register-availability"
+                    placeholder="e.g., Mon-Fri 9am-5pm">
+                </div>
+              </div>
+              <div id="patient-fields">
+                <div class="mb-3">
+                  <label for="register-age" class="form-label">Age</label>
+                  <input type="number" class="form-control" id="register-age">
+                </div>
+                <div class="mb-3">
+                  <label for="register-gender" class="form-label">Gender</label>
+                  <select class="form-select" id="register-gender">
+                    <option value="">Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+              </div>
+              <button type="submit" class="btn btn-primary w-100">Register</button>
+            </form>
+            <div class="text-center mt-3">
+              <p>Already have an account? <a href="#" id="show-login">Login</a></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Video Call Modal -->
+    <div class="modal fade" id="videoCallModal" tabindex="-1" aria-labelledby="videoCallModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="videoCallModalLabel">Video Consultation</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-8">
+                <div id="video-container"
+                  style="width: 100%; height: 400px; background-color: #000; position: relative;">
+                  <div id="local-video"
+                    style="position: absolute; bottom: 20px; right: 20px; width: 120px; height: 90px; z-index: 100;">
+                  </div>
+                  <div id="remote-video" style="width: 100%; height: 100%;"></div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="chat-container"
+                  style="height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; margin-bottom: 10px;"
+                  id="chat-messages">
+                  <!-- Chat messages will appear here -->
+                </div>
+                <div class="input-group">
+                  <input type="text" class="form-control" id="chat-input" placeholder="Type your message...">
+                  <button class="btn btn-primary" id="send-message">Send</button>
+                </div>
+                <div class="mt-3">
+                  <button id="end-call" class="btn btn-danger w-100">End Call</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer id="footer" class="footer light-background">
+    <div class="container footer-top">
+      <div class="row gy-4">
+        <div class="col-lg-4 col-md-6 footer-about">
+          <a href="index.html" class="logo d-flex align-items-center">
+            <span class="sitename">MediCare</span>
+          </a>
+          <div class="footer-contact pt-3">
+            <p>A108 Adam Street</p>
+            <p>New York, NY 535022</p>
+            <p class="mt-3"><strong>Phone:</strong> <span>+1 5589 55488 55</span></p>
+            <p><strong>Email:</strong> <span>info@medicare.com</span></p>
+          </div>
+          <div class="social-links d-flex mt-4">
+            <a href="#"><i class="bi bi-twitter-x"></i></a>
+            <a href="#"><i class="bi bi-facebook"></i></a>
+            <a href="#"><i class="bi bi-instagram"></i></a>
+            <a href="#"><i class="bi bi-linkedin"></i></a>
+          </div>
+        </div>
+        <div class="col-lg-2 col-md-3 footer-links">
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="#hero">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#services">Services</a></li>
+            <li><a href="#doctors">Doctors</a></li>
+            <li><a href="#appointment">Appointments</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-2 col-md-3 footer-links">
+          <h4>Our Services</h4>
+          <ul>
+            <li><a href="#">Appointments</a></li>
+            <li><a href="#">Video Consultations</a></li>
+            <li><a href="#">E-Prescriptions</a></li>
+            <li><a href="#">Medical Records</a></li>
+            <li><a href="#">Health Tips</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-2 col-md-3 footer-links">
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="#">Terms of service</a></li>
+            <li><a href="#">Privacy policy</a></li>
+            <li><a href="#">HIPAA Compliance</a></li>
+            <li><a href="#">Cookie Policy</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-2 col-md-3 footer-links">
+          <h4>Support</h4>
+          <ul>
+            <li><a href="#">Help Center</a></li>
+            <li><a href="#">FAQs</a></li>
+            <li><a href="#">Contact Us</a></li>
+            <li><a href="#">Feedback</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="container copyright text-center mt-4">
+      <p>© <span>Copyright</span> <strong class="px-1 sitename">MediCare</strong> <span>All Rights Reserved</span></p>
+      <div class="credits">
+        Designed by <a href="#">CareMate</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scroll Top -->
+  <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i
+      class="bi bi-arrow-up-short"></i></a>
+
+  <!-- Preloader -->
+  <div id="preloader"></div>
+
+  <!-- Vendor JS Files -->
+  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/vendor/php-email-form/validate.js"></script>
+  <script src="assets/vendor/aos/aos.js"></script>
+  <script src="assets/vendor/glightbox/js/glightbox.min.js"></script>
+  <script src="assets/vendor/purecounter/purecounter_vanilla.js"></script>
+  <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
+
+  <!-- Main JS File -->
+  <script src="assets/js/main.js"></script>
+
+  <!-- Custom JS for API Integration -->
+  <script>
+    // Global variables
+    let currentUser = null;
+    let zegoCloudEngine = null;
+    let currentAppointmentId = null;
+
+    // DOM Ready
+    document.addEventListener('DOMContentLoaded', function () {
+      // Initialize modals
+      const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+      const registerModal = new bootstrap.Modal(document.getElementById('registerModal'));
+      const videoCallModal = new bootstrap.Modal(document.getElementById('videoCallModal'));
+      const chatbotModal = new bootstrap.Modal(document.getElementById('chatbotModal'));
+
+      // Check for existing token
+      checkAuthStatus();
+
+      // Load doctors and stats
+      loadDoctors();
+      loadStats();
+
+      // Event listeners
+      document.getElementById('login-btn').addEventListener('click', function (e) {
+        e.preventDefault();
+        loginModal.show();
+      });
+
+      document.getElementById('register-btn').addEventListener('click', function (e) {
+        e.preventDefault();
+        registerModal.show();
+      });
+
+      document.getElementById('show-register').addEventListener('click', function (e) {
+        e.preventDefault();
+        loginModal.hide();
+        registerModal.show();
+      });
+
+      document.getElementById('show-login').addEventListener('click', function (e) {
+        e.preventDefault();
+        registerModal.hide();
+        loginModal.show();
+      });
+
+      document.getElementById('logout-btn').addEventListener('click', function (e) {
+        e.preventDefault();
+        logout();
+      });
+
+      document.getElementById('dashboard-btn').addEventListener('click', function (e) {
+        e.preventDefault();
+        redirectToDashboard();
+      });
+
+      document.getElementById('chatbot-btn').addEventListener('click', function (e) {
+        e.preventDefault();
+        // Allow public access to chatbot without login
+        chatbotModal.show();
+      });
+
+      document.getElementById('register-role').addEventListener('change', function () {
+        const role = this.value;
+        if (role === 'DOCTOR') {
+          document.getElementById('doctor-fields').style.display = 'block';
+          document.getElementById('patient-fields').style.display = 'none';
+        } else if (role === 'PATIENT') {
+          document.getElementById('doctor-fields').style.display = 'none';
+          document.getElementById('patient-fields').style.display = 'block';
+        } else {
+          document.getElementById('doctor-fields').style.display = 'none';
+          document.getElementById('patient-fields').style.display = 'none';
+        }
+      });
+
+      // Form submissions
+      document.getElementById('login-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        login();
+      });
+
+      document.getElementById('register-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        register();
+      });
+
+      document.getElementById('appointment-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (currentUser) {
+          createAppointment();
+        } else {
+          loginModal.show();
+        }
+      });
+
+      document.getElementById('contact-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        sendContactMessage();
+      });
+
+      document.getElementById('specialty').addEventListener('change', function () {
+        const specialty = this.value;
+        if (specialty) {
+          loadDoctorsBySpecialty(specialty);
+        }
+      });
+
+      // Video call controls
+      document.getElementById('end-call').addEventListener('click', function () {
+        endVideoCall();
+        videoCallModal.hide();
+      });
+
+      // Chatbot controls
+      document.getElementById('chatbot-send').addEventListener('click', sendChatMessage);
+      document.getElementById('chatbot-input').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+          sendChatMessage();
+        }
+      });
+    });
+
+    // Chatbot Functions
+    async function sendChatMessage() {
+      const input = document.getElementById('chatbot-input');
+      const message = input.value.trim();
+      if (!message) return;
+
+      // Add user message to chat
+      addChatMessage('user', message);
+      input.value = '';
+
+      try {
+        const response = await fetch('http://localhost:8080/api/chatbot/query', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+            // No Authorization header needed since endpoint is public
+          },
+          body: JSON.stringify({
+            symptoms: message,
+            patientId: currentUser ? currentUser.id : null
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          addChatMessage('bot', data.response, data.suggestedSpecialty, data.recommendedDoctorIds);
+        } else {
+          const error = await response.json();
+          addChatMessage('bot', error.message || 'Sorry, I couldn’t process your request. Please try again.');
+        }
+      } catch (error) {
+        console.error('Chatbot error:', error);
+        addChatMessage('bot', 'An error occurred while processing your request. Please try again.');
+      }
+
+      // Scroll to bottom
+      const messagesContainer = document.getElementById('chatbot-messages');
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    async function loadChatHistory() {
+      if (!currentUser) return; // Skip history for non-logged-in users
+
+      try {
+        const response = await fetch(`http://localhost:8080/api/chatbot/history/${currentUser.id}`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+
+        if (response.ok) {
+          const history = await response.json();
+          const messagesContainer = document.getElementById('chatbot-messages');
+          messagesContainer.innerHTML = '<div class="chatbot-message bot"><div class="message-content">Welcome to MediCare Assistant! I\'m here to help you with your health concerns. Please describe your symptoms.</div></div>';
+
+          history.forEach(entry => {
+            addChatMessage('user', entry.message);
+            addChatMessage('bot', entry.response);
+          });
+
+          messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+      } catch (error) {
+        console.error('Error loading chat history:', error);
+      }
+    }
+
+    function addChatMessage(type, message, suggestedSpecialty = null, recommendedDoctorIds = []) {
+      const messagesContainer = document.getElementById('chatbot-messages');
+      const messageElement = document.createElement('div');
+      messageElement.className = `chatbot-message ${type}`;
+      
+      let content = `<div class="message-content">${message}</div>`;
+      if (type === 'bot' && suggestedSpecialty) {
+        content = `
+          <div class="message-content">
+            ${message}
+            <div class="suggested-specialty">Suggested Specialty: ${suggestedSpecialty}</div>
+            ${recommendedDoctorIds.length > 0 ? `
+              <div class="recommended-doctors">
+                Recommended Doctors:
+                <ul>
+                  ${recommendedDoctorIds.map(id => `<li><a href="#appointment" onclick="selectDoctor(${id})">Doctor ID: ${id}</a></li>`).join('')}
+                </ul>
+              </div>
+            ` : ''}
+          </div>`;
+      }
+      
+      messageElement.innerHTML = content;
+      messagesContainer.appendChild(messageElement);
+    }
+
+    function selectDoctor(doctorId) {
+      // Populate appointment form with selected doctor
+      document.getElementById('doctor').value = doctorId;
+      bootstrap.Modal.getInstance(document.getElementById('chatbotModal')).hide();
+      document.querySelector('#appointment').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // API Functions
+    async function checkAuthStatus() {
+      const token = localStorage.getItem('token');
+      if (token) {
+        try {
+          const response = await fetch('http://localhost:8080/auth/me', {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+
+          if (response.ok) {
+            const user = await response.json();
+            currentUser = user;
+            updateUIForLoggedInUser(user);
+          } else {
+            localStorage.removeItem('token');
+          }
+        } catch (error) {
+          console.error('Error checking auth status:', error);
+        }
+      }
+    }
+
+    async function login() {
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+      try {
+        const response = await fetch('http://localhost:8080/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        if (response.ok) {
+          const data = await response.json();
+          localStorage.setItem('token', data.token);
+          currentUser = data.user;
+          updateUIForLoggedInUser(data.user);
+          const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+          loginModal.hide();
+          alert(`Welcome back, ${data.user.name}!`);
+          window.location.href = '/dashboard.html';
+        } else {
+          const error = await response.json();
+          alert(error.message || 'Login failed');
+        }
+      } catch (error) {
+        console.error('Login error:', error);
+        alert('An error occurred during login');
+      }
+    }
+
+    async function register() {
+      const name = document.getElementById('register-name').value;
+      const email = document.getElementById('register-email').value;
+      const password = document.getElementById('register-password').value;
+      const confirmPassword = document.getElementById('register-confirm-password').value;
+      const role = document.getElementById('register-role').value;
+
+      if (password !== confirmPassword) {
+        alert('Passwords do not match');
+        return;
+      }
+
+      const registerData = {
+        email: email,
+        password: password,
+        role: role,
+        name: name
+      };
+
+      if (role === 'DOCTOR') {
+        registerData.specialty = document.getElementById('register-specialty').value;
+        registerData.availability = document.getElementById('register-availability').value;
+      } else if (role === 'PATIENT') {
+        registerData.age = document.getElementById('register-age').value;
+        registerData.gender = document.getElementById('register-gender').value;
+      }
+
+      try {
+        const response = await fetch('http://localhost:8080/auth/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(registerData)
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          alert('Registration successful! Please login.');
+          const registerModal = bootstrap.Modal.getInstance(document.getElementById('registerModal'));
+          registerModal.hide();
+        } else {
+          const error = await response.json();
+          alert(error.message || 'Registration failed');
+        }
+      } catch (error) {
+        console.error('Registration error:', error);
+        alert('An error occurred during registration');
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem('token');
+      currentUser = null;
+      updateUIForLoggedOutUser();
+      alert('You have been logged out');
+    }
+
+    async function loadDoctors() {
+      try {
+        const response = await fetch('http://localhost:8080/doctors');
+        if (response.ok) {
+          const doctors = await response.json();
+          displayDoctors(doctors);
+        }
+      } catch (error) {
+        console.error('Error loading doctors:', error);
+      }
+    }
+
+    async function loadDoctorsBySpecialty(specialty) {
+      try {
+        const response = await fetch(`http://localhost:8080/doctors?specialty=${specialty}`);
+        if (response.ok) {
+          const doctors = await response.json();
+          const doctorSelect = document.getElementById('doctor');
+          doctorSelect.innerHTML = '<option value="">Select Doctor</option>';
+
+          doctors.forEach(doctor => {
+            const option = document.createElement('option');
+            option.value = doctor.id;
+            option.textContent = `${doctor.name} - ${doctor.specialty} (${doctor.availability})`;
+            doctorSelect.appendChild(option);
+          });
+        }
+      } catch (error) {
+        console.error('Error loading doctors by specialty:', error);
+      }
+    }
+
+    async function loadStats() {
+      try {
+        const response = await fetch('http://localhost:8080/analytics/doctor');
+        if (response.ok) {
+          const stats = await response.json();
+          document.getElementById('doctors-count').setAttribute('data-purecounter-end', stats.doctors);
+          document.getElementById('patients-count').setAttribute('data-purecounter-end', stats.patients);
+          document.getElementById('appointments-count').setAttribute('data-purecounter-end', stats.appointments);
+          document.getElementById('prescriptions-count').setAttribute('data-purecounter-end', stats.prescriptions);
+          new PureCounter();
+        }
+      } catch (error) {
+        console.error('Error loading stats:', error);
+      }
+    }
+
+    async function createAppointment() {
+      const form = document.getElementById('appointment-form');
+      const formData = new FormData(form);
+
+      const appointmentData = {
+        doctorId: formData.get('doctor'),
+        date: formData.get('date'),
+        symptoms: formData.get('symptoms')
+      };
+
+      try {
+        const response = await fetch('http://localhost:8080/appointments', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify(appointmentData)
+        });
+
+        if (response.ok) {
+          const appointment = await response.json();
+          form.reset();
+          document.querySelector('.sent-message').style.display = 'block';
+          if (appointment.requiresPayment) {
+            initiatePayment(appointment.id);
+          }
+        } else {
+          const error = await response.json();
+          document.querySelector('.error-message').textContent = error.message || 'Failed to create appointment';
+          document.querySelector('.error-message').style.display = 'block';
+        }
+      } catch (error) {
+        console.error('Error creating appointment:', error);
+        document.querySelector('.error-message').textContent = 'An error occurred while creating appointment';
+        document.querySelector('.error-message').style.display = 'block';
+      }
+    }
+
+    function initiatePayment(appointmentId) {
+      const paymentRequest = {
+        appointmentId: appointmentId,
+        amount: "1000.00",
+        currency: "LKR",
+        returnUrl: window.location.href,
+        cancelUrl: window.location.href,
+        notifyUrl: "https://your-api-endpoint/payments/notify",
+        firstName: currentUser ? currentUser.name.split(' ')[0] : 'Guest',
+        lastName: currentUser ? currentUser.name.split(' ')[1] || '' : '',
+        email: currentUser ? currentUser.email : document.getElementById('email').value,
+        phone: document.getElementById('phone').value,
+        address: "No.1, Galle Road",
+        city: "Colombo",
+        country: "Sri Lanka"
+      };
+      payhere.startPayment(paymentRequest);
+    }
+
+    async function sendContactMessage() {
+      const form = document.getElementById('contact-form');
+      const formData = new FormData(form);
+
+      const messageData = {
+        name: formData.get('name'),
+        email: formData.get('email'),
+        subject: formData.get('subject'),
+        message: formData.get('message')
+      };
+
+      try {
+        const response = await fetch('/contact', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(messageData)
+        });
+
+        if (response.ok) {
+          form.reset();
+          document.querySelector('.sent-message').style.display = 'block';
+        } else {
+          const error = await response.json();
+          document.querySelector('.error-message').textContent = error.message || 'Failed to send message';
+          document.querySelector('.error-message').style.display = 'block';
+        }
+      } catch (error) {
+        console.error('Error sending contact message:', error);
+        document.querySelector('.error-message').textContent = 'An error occurred while sending message';
+        document.querySelector('.error-message').style.display = 'block';
+      }
+    }
+
+    async function startVideoCall(appointmentId) {
+      currentAppointmentId = appointmentId;
+
+      try {
+        const response = await fetch(`http://localhost:8080/api/videocalls/create`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify({
+            appointmentId: appointmentId
+          })
+        });
+
+        if (response.ok) {
+          const videoCallData = await response.json();
+          zegoCloudEngine = await initZegoCloud(videoCallData.token, videoCallData.roomId);
+          const videoCallModal = new bootstrap.Modal(document.getElementById('videoCallModal'));
+          videoCallModal.show();
+        } else {
+          const error = await response.json();
+          alert(error.message || 'Failed to start video call');
+        }
+      } catch (error) {
+        console.error('Error starting video call:', error);
+        alert('An error occurred while starting video call');
+      }
+    }
+
+    async function initZegoCloud(token, roomId) {
+      const engine = new ZegoExpressEngine(appID, server);
+      await engine.loginRoom(roomId, token, { userID: currentUser ? currentUser.id : 'guest', userName: currentUser ? currentUser.name : 'Guest' });
+      const localStream = await engine.createStream();
+      const localVideoElement = document.getElementById('local-video');
+      localVideoElement.srcObject = localStream;
+      await engine.startPublishingStream(localStream.streamID);
+
+      engine.on('roomStreamUpdate', (roomID, updateType, streamList) => {
+        if (updateType === 'ADD') {
+          const remoteVideoElement = document.getElementById('remote-video');
+          engine.startPlayingStream(streamList[0].streamID).then(mediaStream => {
+            remoteVideoElement.srcObject = mediaStream;
+          });
+        }
+      });
+
+      return engine;
+    }
+
+    async function endVideoCall() {
+      if (zegoCloudEngine) {
+        await zegoCloudEngine.logoutRoom();
+        zegoCloudEngine.destroy();
+        zegoCloudEngine = null;
+      }
+
+      try {
+        await fetch(`http://localhost:8080/api/videocalls/${currentAppointmentId}/status`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify({
+            status: 'COMPLETED'
+          })
+        });
+      } catch (error) {
+        console.error('Error updating call status:', error);
+      }
+
+      currentAppointmentId = null;
+    }
+
+    function updateUIForLoggedInUser(user) {
+      document.getElementById('auth-links').style.display = 'none';
+      document.getElementById('user-info').style.display = 'flex';
+      document.getElementById('user-role').textContent = `Hi, ${user.name} (${user.role})`;
+    }
+
+    function updateUIForLoggedOutUser() {
+      document.getElementById('auth-links').style.display = 'flex';
+      document.getElementById('user-info').style.display = 'none';
+    }
+
+    function redirectToDashboard() {
+      if (!currentUser) return;
+
+      switch (currentUser.role) {
+        case 'ADMIN':
+          window.location.href = '/admin/dashboard.html';
+          break;
+        case 'DOCTOR':
+          window.location.href = '/doctor/dashboard.html';
+          break;
+        case 'PATIENT':
+          window.location.href = '/dashboard.html';
+          break;
+        default:
+          window.location.href = '/';
+      }
+    }
+
+    function displayDoctors(doctors) {
+      const doctorsList = document.getElementById('doctors-list');
+      doctorsList.innerHTML = '';
+
+      doctors.forEach((doctor, index) => {
+        const doctorElement = document.createElement('div');
+        doctorElement.className = 'col-lg-6';
+        doctorElement.innerHTML = `
+          <div class="team-member d-flex align-items-start" data-aos="fade-up" data-aos-delay="${100 + (index * 100)}">
+            <div class="pic"><img src="${doctor.image || 'assets/img/doctors/doctor-default.jpg'}" class="img-fluid" alt=""></div>
+            <div class="member-info">
+              <h4>${doctor.name}</h4>
+              <span>${doctor.specialty}</span>
+              <p>${doctor.bio || 'Specialized in ' + doctor.specialty}</p>
+              <p><strong>Availability:</strong> ${doctor.availability}</p>
+              ${doctor.verified ? '<span class="badge bg-success">Verified</span>' : '<span class="badge bg-warning">Pending Verification</span>'}
+              <div class="social mt-2">
+                <a href="#appointment" class="btn btn-sm btn-primary">Book Appointment</a>
+                ${currentUser && currentUser.role === 'PATIENT' ? `<button class="btn btn-sm btn-success ms-2" onclick="startVideoCall('${doctor.id}')">Video Consult</button>` : ''}
+              </div>
+            </div>
+          </div>
+        `;
+        doctorsList.appendChild(doctorElement);
+      });
+    }
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Patient Dashboard - MediCare</title>
+  <meta name="description" content="Patient dashboard for MediCare healthcare portal">
+
+  <!-- Favicons -->
+  <link href="../assets/img/favicon.png" rel="icon">
+  <link href="../assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+    rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="../assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="../assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="../assets/vendor/aos/aos.css" rel="stylesheet">
+  <link href="../assets/vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+  <link href="../assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+  <link href="../assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+
+  <!-- Main CSS File -->
+  <link href="../assets/css/main.css" rel="stylesheet">
+
+  <!-- Dashboard CSS -->
+  <style>
+    .dashboard-card {
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s;
+      height: 100%;
+    }
+
+    .dashboard-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .card-icon {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    .appointment-card {
+      border-left: 4px solid #4154f1;
+    }
+
+    .prescription-card {
+      border-left: 4px solid #2ca58d;
+    }
+
+    .video-call-card {
+      border-left: 4px solid #f72585;
+    }
+
+    .profile-card {
+      border-left: 4px solid #ff9e00;
+    }
+
+    .nav-pills .nav-link.active {
+      background-color: #4154f1;
+    }
+
+    .profile-img {
+      width: 120px;
+      height: 120px;
+      object-fit: cover;
+    }
+
+    #video-call-container {
+      width: 100%;
+      height: 600px;
+    }
+
+    .error-message {
+      color: red;
+      display: none;
+      margin-bottom: 1rem;
+    }
+
+    .payment-status {
+      display: none;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+
+<body class="dashboard-page">
+
+  <header id="header" class="header sticky-top">
+    <div class="topbar d-flex align-items-center">
+      <div class="container d-flex justify-content-center justify-content-md-between">
+        <div class="contact-info d-flex align-items-center">
+          <i class="bi bi-person d-flex align-items-center"><span id="patient-name">Loading...</span></i>
+        </div>
+        <div class="social-links d-none d-md-flex align-items-center">
+          <a href="../index.html" class="home-btn"><i class="bi bi-house-door"></i> Home</a>
+          <a href="#" id="logout-btn" class="logout-btn ms-3"><i class="bi bi-box-arrow-right"></i> Logout</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="branding d-flex align-items-center">
+      <div class="container position-relative d-flex align-items-center justify-content-between">
+        <a href="dashboard.html" class="logo d-flex align-items-center me-auto">
+          <h1 class="sitename">MediCare</h1>
+        </a>
+
+        <nav id="navmenu" class="navmenu">
+          <ul>
+            <li><a href="#dashboard" class="active">Dashboard</a></li>
+            <li><a href="#appointments">Appointments</a></li>
+            <li><a href="#prescriptions">Prescriptions</a></li>
+            <li><a href="#medical-history">Medical History</a></li>
+            <li><a href="#profile">Profile</a></li>
+          </ul>
+          <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+        </nav>
+
+        <a class="cta-btn d-none d-sm-block" href="#new-appointment">New Appointment</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <!-- Dashboard Section -->
+    <section id="dashboard" class="dashboard section">
+      <div class="container">
+        <div class="row mb-4">
+          <div class="col-12">
+            <h2>Patient Dashboard</h2>
+            <p class="mb-0">Welcome back to your healthcare portal</p>
+          </div>
+        </div>
+
+        <div class="row gy-4">
+          <!-- Upcoming Appointments Card -->
+          <div class="col-lg-3 col-md-6">
+            <div class="dashboard-card appointment-card p-4">
+              <div class="card-icon text-primary">
+                <i class="bi bi-calendar-check"></i>
+              </div>
+              <h5>Upcoming Appointments</h5>
+              <h3 id="upcoming-appointments-count">0</h3>
+              <a href="#appointments" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+          </div>
+
+          <!-- Recent Prescriptions Card -->
+          <div class="col-lg-3 col-md-6">
+            <div class="dashboard-card prescription-card p-4">
+              <div class="card-icon text-success">
+                <i class="bi bi-prescription"></i>
+              </div>
+              <h5>Recent Prescriptions</h5>
+              <h3 id="prescriptions-count">0</h3>
+              <a href="#prescriptions" class="btn btn-sm btn-outline-success">View All</a>
+            </div>
+          </div>
+
+          <!-- Video Consultations Card -->
+          <div class="col-lg-3 col-md-6">
+            <div class="dashboard-card video-call-card p-4">
+              <div class="card-icon text-danger">
+                <i class="bi bi-camera-video"></i>
+              </div>
+              <h5>Video Consultations</h5>
+              <h3 id="video-consultations-count">0</h3>
+              <a href="#appointments" class="btn btn-sm btn-outline-danger">Schedule</a>
+            </div>
+          </div>
+
+          <!-- Profile Card -->
+          <div class="col-lg-3 col-md-6">
+            <div class="dashboard-card profile-card p-4">
+              <div class="card-icon text-warning">
+                <i class="bi bi-person-circle"></i>
+              </div>
+              <h5>My Profile</h5>
+              <h3 id="profile-completion">0%</h3>
+              <a href="#profile" class="btn btn-sm btn-outline-warning">Update</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Activity Section -->
+        <div class="row mt-5">
+          <div class="col-lg-8">
+            <div class="card">
+              <div class="card-header">
+                <h5>Recent Activity</h5>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>Activity</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody id="recent-activity">
+                      <!-- Filled by JavaScript -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Actions Section -->
+          <div class="col-lg-4">
+            <div class="card">
+              <div class="card-header">
+                <h5>Quick Actions</h5>
+              </div>
+              <div class="card-body">
+                <div class="d-grid gap-2">
+                  <button class="btn btn-primary" onclick="location.href='#new-appointment'">
+                    <i class="bi bi-plus-circle me-2"></i> New Appointment
+                  </button>
+                  <button class="btn btn-success" onclick="location.href='#prescriptions'">
+                    <i class="bi bi-prescription me-2"></i> Request Prescription
+                  </button>
+                  <button class="btn btn-info" onclick="location.href='#medical-history'">
+                    <i class="bi bi-file-medical me-2"></i> View Medical History
+                  </button>
+                  <button class="btn btn-warning" onclick="location.href='#profile'">
+                    <i class="bi bi-pencil-square me-2"></i> Update Profile
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Appointments Section -->
+    <section id="appointments" class="appointments section">
+      <div class="container">
+        <div class="row mb-4">
+          <div class="col-12">
+            <h2>My Appointments</h2>
+            <p>View and manage your upcoming and past appointments</p>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-12">
+            <ul class="nav nav-pills mb-4" id="appointments-tab" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="upcoming-tab" data-bs-toggle="pill" data-bs-target="#upcoming"
+                  type="button" role="tab">Upcoming</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="past-tab" data-bs-toggle="pill" data-bs-target="#past" type="button"
+                  role="tab">Past</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="new-tab" data-bs-toggle="pill" data-bs-target="#new" type="button"
+                  role="tab">New Appointment</button>
+              </li>
+            </ul>
+
+            <div class="tab-content" id="appointments-tabContent">
+              <div class="tab-pane fade show active" id="upcoming" role="tabpanel">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="table-responsive">
+                      <table class="table table-hover">
+                        <thead>
+                          <tr>
+                            <th>Date & Time</th>
+                            <th>Doctor</th>
+                            <th>Specialty</th>
+                            <th>Status</th>
+                            <th>Payment Status</th>
+                            <th>Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody id="upcoming-appointments">
+                          <!-- Filled by JavaScript -->
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tab-pane fade" id="past" role="tabpanel">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="table-responsive">
+                      <table class="table table-hover">
+                        <thead>
+                          <tr>
+                            <th>Date & Time</th>
+                            <th>Doctor</th>
+                            <th>Specialty</th>
+                            <th>Status</th>
+                            <th>Payment Status</th>
+                            <th>Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody id="past-appointments">
+                          <!-- Filled by JavaScript -->
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tab-pane fade" id="new" role="tabpanel">
+                <div class="card">
+                  <div class="card-body">
+                    <form id="new-appointment-form">
+                      <div class="row">
+                        <div class="col-md-6 form-group mb-3">
+                          <label for="appointment-specialty" class="form-label">Specialty</label>
+                          <select name="specialty" id="appointment-specialty" class="form-select" required>
+                            <option value="">Select Specialty</option>
+                            <option value="Cardiology">Cardiology</option>
+                            <option value="Neurology">Neurology</option>
+                            <option value="Pediatrics">Pediatrics</option>
+                            <option value="Dermatology">Dermatology</option>
+                            <option value="General Practice">General Practice</option>
+                          </select>
+                        </div>
+                        <div class="col-md-6 form-group mb-3">
+                          <label for="appointment-doctor" class="form-label">Doctor</label>
+                          <select name="doctor" id="appointment-doctor" class="form-select" required>
+                            <option value="">Select Doctor</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-md-6 form-group mb-3">
+                          <label for="appointment-date" class="form-label">Date</label>
+                          <input type="date" name="date" class="form-control" id="appointment-date" required>
+                        </div>
+                        <div class="col-md-6 form-group mb-3">
+                          <label for="appointment-time" class="form-label">Time</label>
+                          <input type="time" name="time" class="form-control" id="appointment-time" required>
+                        </div>
+                      </div>
+                      <div class="form-group mb-3">
+                        <label for="appointment-amount" class="form-label">Amount (LKR)</label>
+                        <input type="number" name="amount" class="form-control" id="appointment-amount" required min="0" step="0.01">
+                      </div>
+                      <div class="form-group mb-3">
+                        <label for="appointment-reason" class="form-label">Reason for Visit</label>
+                        <textarea name="reason" class="form-control" id="appointment-reason" rows="3" required></textarea>
+                      </div>
+                      <div class="mt-3">
+                        <div class="loading" style="display: none;">Loading</div>
+                        <div class="error-message"></div>
+                        <div class="sent-message" style="display: none;">Your appointment request has been sent successfully. Please proceed to payment.</div>
+                        <div class="text-end">
+                          <button type="submit" class="btn btn-primary">Book Appointment</button>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Prescriptions Section -->
+    <section id="prescriptions" class="prescriptions section">
+      <div class="container">
+        <div class="row mb-4">
+          <div class="col-12">
+            <h2>My Prescriptions</h2>
+            <p>View your current and past prescriptions</p>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>Doctor</th>
+                        <th>Medication</th>
+                        <th>Dosage</th>
+                        <th>Instructions</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody id="prescriptions-list">
+                      <!-- Filled by JavaScript -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Medical History Section -->
+    <section id="medical-history" class="medical-history section">
+      <div class="container">
+        <div class="row mb-4">
+          <div class="col-12">
+            <h2>Medical History</h2>
+            <p>Your complete medical records and history</p>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs" id="medical-history-tabs" role="tablist">
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="conditions-tab" data-bs-toggle="tab"
+                      data-bs-target="#conditions" type="button" role="tab">Conditions</button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="allergies-tab" data-bs-toggle="tab" data-bs-target="#allergies"
+                      type="button" role="tab">Allergies</button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="procedures-tab" data-bs-toggle="tab" data-bs-target="#procedures"
+                      type="button" role="tab">Procedures</button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="immunizations-tab" data-bs-toggle="tab" data-bs-target="#immunizations"
+                      type="button" role="tab">Immunizations</button>
+                  </li>
+                </ul>
+              </div>
+              <div class="card-body">
+                <div class="tab-content" id="medical-history-content">
+                  <div class="tab-pane fade show active" id="conditions" role="tabpanel">
+                    <div id="conditions-list">
+                      <!-- Filled by JavaScript -->
+                    </div>
+                  </div>
+                  <div class="tab-pane fade" id="allergies" role="tabpanel">
+                    <div id="allergies-list">
+                      <!-- Filled by JavaScript -->
+                    </div>
+                  </div>
+                  <div class="tab-pane fade" id="procedures" role="tabpanel">
+                    <div id="procedures-list">
+                      <!-- Filled by JavaScript -->
+                    </div>
+                  </div>
+                  <div class="tab-pane fade" id="immunizations" role="tabpanel">
+                    <div id="immunizations-list">
+                      <!-- Filled by JavaScript -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Profile Section -->
+    <section id="profile" class="profile section">
+      <div class="container">
+        <div class="row mb-4">
+          <div class="col-12">
+            <h2>My Profile</h2>
+            <p>Manage your personal information and account settings</p>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-lg-4">
+            <div class="card">
+              <div class="card-body text-center">
+                <img src="../assets/img/profile-img.jpg" alt="Profile" class="rounded-circle profile-img mb-3">
+                <h4 id="profile-name">Loading...</h4>
+                <p class="text-muted">Patient</p>
+                <div class="d-grid gap-2">
+                  <button class="btn btn-outline-primary" id="change-photo-btn">Change Photo</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="card mt-4">
+              <div class="card-header">
+                <h5>Account Security</h5>
+              </div>
+              <div class="card-body">
+                <div class="d-grid gap-2">
+                  <button class="btn btn-outline-warning" id="change-password-btn">Change Password</button>
+                  <button class="btn btn-outline-danger" id="deactivate-account-btn">Deactivate Account</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-8">
+            <div class="card">
+              <div class="card-header">
+                <h5>Personal Information</h5>
+              </div>
+              <div class="card-body">
+                <form id="profile-form">
+                  <div class="row">
+                    <div class="col-md-6 form-group mb-3">
+                      <label for="profile-first-name" class="form-label">First Name</label>
+                      <input type="text" class="form-control" id="profile-first-name" required>
+                    </div>
+                    <div class="col-md-6 form-group mb-3">
+                      <label for="profile-last-name" class="form-label">Last Name</label>
+                      <input type="text" class="form-control" id="profile-last-name" required>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6 form-group mb-3">
+                      <label for="profile-email" class="form-label">Email</label>
+                      <input type="email" class="form-control" id="profile-email" required>
+                    </div>
+                    <div class="col-md-6 form-group mb-3">
+                      <label for="profile-phone" class="form-label">Phone</label>
+                      <input type="tel" class="form-control" id="profile-phone">
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6 form-group mb-3">
+                      <label for="profile-dob" class="form-label">Date of Birth</label>
+                      <input type="date" class="form-control" id="profile-dob">
+                    </div>
+                    <div class="col-md-6 form-group mb-3">
+                      <label for="profile-gender" class="form-label">Gender</label>
+                      <select class="form-select" id="profile-gender">
+                        <option value="">Select Gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                        <option value="Prefer not to say">Prefer not to say</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-group mb-3">
+                    <label for="profile-address" class="form-label">Address</label>
+                    <textarea class="form-control" id="profile-address" rows="2"></textarea>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6 form-group mb-3">
+                      <label for="profile-city" class="form-label">City</label>
+                      <input type="text" class="form-control" id="profile-city">
+                    </div>
+                    <div class="col-md-6 form-group mb-3">
+                      <label for="profile-country" class="form-label">Country</label>
+                      <input type="text" class="form-control" id="profile-country">
+                    </div>
+                  </div>
+                  <div class="text-end">
+                    <button type="submit" class="btn btn-primary">Update Profile</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+            <div class="card mt-4">
+              <div class="card-header">
+                <h5>Health Information</h5>
+              </div>
+              <div class="card-body">
+                <form id="health-info-form">
+                  <div class="row">
+                    <div class="col-md-6 form-group mb-3">
+                      <label for="health-blood-type" class="form-label">Blood Type</label>
+                      <select class="form-select" id="health-blood-type">
+                        <option value="">Select Blood Type</option>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+                      </select>
+                    </div>
+                    <div class="col-md-6 form-group mb-3">
+                      <label for="health-height" class="form-label">Height (cm)</label>
+                      <input type="number" class="form-control" id="health-height">
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6 form-group mb-3">
+                      <label for="health-weight" class="form-label">Weight (kg)</label>
+                      <input type="number" class="form-control" id="health-weight">
+                    </div>
+                    <div class="col-md-6 form-group mb-3">
+                      <label for="health-allergies" class="form-label">Allergies</label>
+                      <input type="text" class="form-control" id="health-allergies" placeholder="List any allergies">
+                    </div>
+                  </div>
+                  <div class="form-group mb-3">
+                    <label for="health-conditions" class="form-label">Medical Conditions</label>
+                    <textarea class="form-control" id="health-conditions" rows="3"
+                      placeholder="List any medical conditions"></textarea>
+                  </div>
+                  <div class="form-group mb-3">
+                    <label for="health-medications" class="form-label">Current Medications</label>
+                    <textarea class="form-control" id="health-medications" rows="3"
+                      placeholder="List current medications"></textarea>
+                  </div>
+                  <div class="text-end">
+                    <button type="submit" class="btn btn-primary">Update Health Info</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Change Password Modal -->
+    <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="changePasswordModalLabel">Change Password</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="change-password-form">
+              <div class="form-group mb-3">
+                <label for="current-password" class="form-label">Current Password</label>
+                <input type="password" class="form-control" id="current-password" name="current-password" required>
+              </div>
+              <div class="form-group mb-3">
+                <label for="new-password" class="form-label">New Password</label>
+                <input type="password" class="form-control" id="new-password" name="new-password" required>
+              </div>
+              <div class="form-group mb-3">
+                <label for="confirm-password" class="form-label">Confirm New Password</label>
+                <input type="password" class="form-control" id="confirm-password" name="confirm-password" required>
+              </div>
+              <div class="error-message"></div>
+              <div class="text-end">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary">Change Password</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Video Call Modal -->
+    <div class="modal fade" id="videoCallModal" tabindex="-1" aria-labelledby="videoCallModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="videoCallModalLabel">Video Consultation</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body p-0">
+            <div id="video-call-container"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="paymentModalLabel">Complete Payment</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="payment-status text-center" id="payment-loading" style="display: none;">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <p>Processing payment...</p>
+            </div>
+            <div class="payment-status text-success" id="payment-success" style="display: none;">
+              <i class="bi bi-check-circle-fill" style="font-size: 2rem;"></i>
+              <p>Payment successful! Your appointment is confirmed.</p>
+            </div>
+            <div class="payment-status text-danger" id="payment-failed" style="display: none;">
+              <i class="bi bi-x-circle-fill" style="font-size: 2rem;"></i>
+              <p>Payment failed. Please try again.</p>
+            </div>
+            <div id="payment-form-container"></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" id="retry-payment-btn" style="display: none;">Retry Payment</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer id="footer" class="footer light-background">
+    <div class="container">
+      <div class="copyright text-center">
+        <p>© <span>Copyright</span> <strong class="px-1 sitename">MediCare</strong> <span>All Rights Reserved</span></p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scroll Top -->
+  <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i
+      class="bi bi-arrow-up-short"></i></a>
+
+  <!-- Vendor JS Files -->
+  <script src="../assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="../assets/vendor/aos/aos.js"></script>
+  <script src="../assets/vendor/glightbox/js/glightbox.min.js"></script>
+  <script src="../assets/vendor/swiper/swiper-bundle.min.js"></script>
+  <!-- PayHere JS -->
+  <script src="https://www.payhere.lk/lib/payhere.js"></script>
+
+  <!-- Main JS File -->
+  <script src="../assets/js/main.js"></script>
+  <!-- Dashboard JS -->
+  <script src="./dashboard.js"></script>
+</body>
+</html>
