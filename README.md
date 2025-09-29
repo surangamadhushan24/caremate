@@ -37,5 +37,4 @@ starter-page.html # Starter template
 - Modify styles in `assets/css/main.css`.
 - Edit content in HTML files for your clinic or organization.
 
-## Contact
-For support or inquiries, please contact the project maintainer.
+
