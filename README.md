@@ -15,21 +15,34 @@ Medilab is a responsive web application designed for medical and healthcare-rela
 ├── assets/
 │   ├── css/       # Shared site styles
 │   ├── img/       # Shared images
-│   ├── js/        # Shared site scripts
+│   ├── js/
+│   │   ├── ui/    # Navigation, scrolling, preloader, animation, and widget behavior
+│   │   ├── auth.js
+│   │   ├── appointments.js
+│   │   ├── chatbot.js
+│   │   ├── contact.js
+│   │   ├── doctors.js
+│   │   ├── payments.js
+│   │   ├── stats.js
+│   │   └── video-call.js
 │   ├── scss/      # Stylesheet sources
 │   └── vendor/    # Third-party libraries
 ├── doctor/
 │   ├── assets/
 │   │   ├── css/   # Doctor dashboard styles
-│   │   └── js/    # Doctor dashboard scripts
+│   │   └── js/    # Dashboard, auth, security, profile, availability, appointments, patients, prescriptions, calls
 │   └── dashboard.html
 ├── patient/
 │   ├── assets/
 │   │   ├── css/   # Patient dashboard styles
-│   │   └── js/    # Patient dashboard scripts
+│   │   └── js/    # Dashboard, auth, appointments, payments, profile, security, prescriptions, calls
 │   └── dashboard.html
 └── README.md
 ```
+
+Application scripts are split by feature so authentication, data loading, forms,
+payments, and calls can be maintained independently. Third-party libraries stay
+under `assets/vendor/`.
 
 ## Getting Started
 1. Clone or download the repository.
