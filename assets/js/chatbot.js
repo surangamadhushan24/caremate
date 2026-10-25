@@ -259,7 +259,7 @@
           const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
           loginModal.hide();
           alert(`Welcome back, ${data.user.name}!`);
-          window.location.href = '/dashboard.html';
+          window.location.href = '/patient/dashboard.html';
         } else {
           const error = await response.json();
           alert(error.message || 'Login failed');
@@ -566,7 +566,7 @@
           window.location.href = '/doctor/dashboard.html';
           break;
         case 'PATIENT':
-          window.location.href = '/dashboard.html';
+          window.location.href = '/patient/dashboard.html';
           break;
         default:
           window.location.href = '/';
