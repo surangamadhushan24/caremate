@@ -3,26 +3,38 @@
 Medilab is a responsive web application designed for medical and healthcare-related services. It features a modern dashboard, appointment forms, and informational pages for clinics, doctors, and patients.
 
 ## Features
-- Dashboard for doctors and administrators
-- Appointment and contact forms (PHP backend)
+- Patient and doctor dashboards
 - Responsive design using Bootstrap
 - Gallery, testimonials, and department sections
 - Easy navigation and user-friendly interface
 
 ## Folder Structure
 ```
-assets/           # Static assets (CSS, JS, images, vendor libraries)
-doctor/           # Doctor dashboard and related pages
-forms/            # PHP backend for forms
-index.html        # Main landing page
-dashboard.html    # Admin/doctor dashboard
-starter-page.html # Starter template
+.
+├── index.html
+├── assets/
+│   ├── css/       # Shared site styles
+│   ├── img/       # Shared images
+│   ├── js/        # Shared site scripts
+│   ├── scss/      # Stylesheet sources
+│   └── vendor/    # Third-party libraries
+├── doctor/
+│   ├── assets/
+│   │   ├── css/   # Doctor dashboard styles
+│   │   └── js/    # Doctor dashboard scripts
+│   └── dashboard.html
+├── patient/
+│   ├── assets/
+│   │   ├── css/   # Patient dashboard styles
+│   │   └── js/    # Patient dashboard scripts
+│   └── dashboard.html
+└── README.md
 ```
 
 ## Getting Started
 1. Clone or download the repository.
-2. Open `index.html` in your browser to view the main page.
-3. For form functionality, ensure a PHP server is running for files in `forms/`.
+2. Serve the project root with a local web server and open `index.html`.
+3. Dashboard API requests expect the application backend at `http://localhost:8080`.
 
 ## Dependencies
 - Bootstrap
@@ -35,6 +47,7 @@ starter-page.html # Starter template
 ## Customization
 - Update images in `assets/img/` as needed.
 - Modify styles in `assets/css/main.css`.
+- Modify dashboard-specific styles and scripts in each role's `assets/` folder.
 - Edit content in HTML files for your clinic or organization.
 
 ## Contact
