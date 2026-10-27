@@ -74,9 +74,15 @@ async function checkAuthStatus() {
       });
 
       if (response.ok) {
-        const user = await response.json();
-        currentUser = user;
-        updateUIForLoggedInUser(user);
+        const result = await response.json();
+
+        if (result.success && result.data) {
+          const user = result.data;          
+          currentUser = user;
+          updateUIForLoggedInUser(user);
+        } else {
+          localStorage.removeItem('token');
+        }
       } else {
         localStorage.removeItem('token');
       }

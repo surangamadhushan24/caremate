@@ -13,8 +13,13 @@ async function loadDoctors() {
   try {
     const response = await fetch('http://localhost:8080/doctors');
     if (response.ok) {
-      const doctors = await response.json();
+      const result = await response.json();
+      
+      const doctors = result.data || [];
+      
       displayDoctors(doctors);
+    } else {
+      console.error('Failed to load doctors:', response.status);
     }
   } catch (error) {
     console.error('Error loading doctors:', error);
@@ -25,7 +30,10 @@ async function loadDoctorsBySpecialty(specialty) {
   try {
     const response = await fetch(`http://localhost:8080/doctors?specialty=${specialty}`);
     if (response.ok) {
-      const doctors = await response.json();
+      const result = await response.json();
+      
+      const doctors = result.data || [];
+      
       const doctorSelect = document.getElementById('doctor');
       doctorSelect.innerHTML = '<option value="">Select Doctor</option>';
 
@@ -44,6 +52,12 @@ async function loadDoctorsBySpecialty(specialty) {
 function displayDoctors(doctors) {
   const doctorsList = document.getElementById('doctors-list');
   doctorsList.innerHTML = '';
+
+  if (!Array.isArray(doctors)) {
+    console.error('Expected an array of doctors, got:', doctors);
+    doctorsList.innerHTML = '<p class="text-danger">Failed to load doctors.</p>';
+    return;
+  }
 
   doctors.forEach((doctor, index) => {
     const doctorElement = document.createElement('div');
