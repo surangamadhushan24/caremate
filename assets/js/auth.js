@@ -95,29 +95,41 @@ async function checkAuthStatus() {
 async function login() {
   const email = document.getElementById('login-email').value;
   const password = document.getElementById('login-password').value;
+
   try {
     const response = await fetch('http://localhost:8080/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password })
     });
-    if (response.ok) {
-      const data = await response.json();
-      localStorage.setItem('token', data.token);
-      currentUser = data.user;
-      updateUIForLoggedInUser(data.user);
+
+    const result = await response.json();
+
+    if (response.ok && result.success) {
+      const { token, user } = result.data;
+
+      localStorage.setItem('token', token);
+      currentUser = user;
+      updateUIForLoggedInUser(user);
+
       const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
       loginModal.hide();
-      alert(`Welcome back, ${data.user.name}!`);
+
+      alert(`Welcome back, ${user.name}!`);
       window.location.href = '/patient/dashboard.html';
     } else {
-      const error = await response.json();
-      alert(error.message || 'Login failed');
+      alert(result.message || 'Login failed');
     }
   } catch (error) {
     console.error('Login error:', error);
     alert('An error occurred during login');
   }
+}
+
+function updateUIForLoggedInUser(user) {
+  document.getElementById('auth-links').style.display = 'none';
+  document.getElementById('user-info').style.display = 'flex';
+  document.getElementById('user-role').textContent = `Hi, ${user.name} (${user.role})`;
 }
 
 async function register() {
@@ -178,11 +190,6 @@ function logout() {
   alert('You have been logged out');
 }
 
-function updateUIForLoggedInUser(user) {
-  document.getElementById('auth-links').style.display = 'none';
-  document.getElementById('user-info').style.display = 'flex';
-  document.getElementById('user-role').textContent = `Hi, ${user.name} (${user.role})`;
-}
 
 function updateUIForLoggedOutUser() {
   document.getElementById('auth-links').style.display = 'flex';
