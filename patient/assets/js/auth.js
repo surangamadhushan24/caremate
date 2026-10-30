@@ -5,16 +5,26 @@ async function checkAuthStatus() {
     window.location.href = '/index.html';
     return;
   }
+
   try {
     const response = await fetch('http://localhost:8080/auth/me', {
       headers: { 'Authorization': `Bearer ${token}` }
     });
+
     if (response.ok) {
-      const user = await response.json();
+      const result = await response.json();
+
+      const user = result.data;
+
+      if (!user || !user.role) {
+        throw new Error('Invalid user data received');
+      }
+
       if (user.role.toUpperCase() !== 'PATIENT') {
         window.location.href = `/${user.role.toLowerCase()}/dashboard.html`;
         return;
       }
+
       currentUser = user;
       updateUIForLoggedInUser(user);
     } else {
