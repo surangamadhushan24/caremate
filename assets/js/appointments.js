@@ -14,7 +14,7 @@ async function createAppointment() {
   const formData = new FormData(form);
 
   const appointmentData = {
-    doctorId: formData.get('doctor'),
+    doctorId: Number(formData.get('doctor')),
     date: formData.get('date'),
     symptoms: formData.get('symptoms')
   };
@@ -30,10 +30,11 @@ async function createAppointment() {
     });
 
     if (response.ok) {
-      const appointment = await response.json();
+      const responseData = await response.json();
+      const appointment = responseData?.data || responseData;
       form.reset();
       document.querySelector('.sent-message').style.display = 'block';
-      if (appointment.requiresPayment) {
+      if (appointment.requiresPayment && appointment.id) {
         initiatePayment(appointment.id);
       }
     } else {

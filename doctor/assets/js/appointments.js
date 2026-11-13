@@ -19,15 +19,16 @@ function displayAppointments(appointments) {
     dashboardTable.innerHTML = '';
 
     todaysAppointments.forEach(appointment => {
+        const patientName = appointment.patient?.name || appointment.patientName || 'Unknown';
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>${new Date(appointment.date).toLocaleTimeString()}</td>
-            <td>${appointment.patient.name}</td>
+            <td>${patientName}</td>
             <td>${appointment.symptoms || 'Not specified'}</td>
             <td>${appointment.type || 'Regular'}</td>
             <td>
                 <button class="btn btn-sm btn-primary" onclick="startVideoCall('${appointment.id}')">Start Call</button>
-                <button class="btn btn-sm btn-info" onclick="showPrescriptionModal('${appointment.id}', '${appointment.patient.name}')">Prescribe</button>
+                <button class="btn btn-sm btn-info" onclick="showPrescriptionModal('${appointment.id}', '${patientName}')">Prescribe</button>
             </td>
         `;
         dashboardTable.appendChild(row);
@@ -38,16 +39,17 @@ function displayAppointments(appointments) {
     upcomingTable.innerHTML = '';
 
     upcomingAppointments.forEach(appointment => {
+        const patientName = appointment.patient?.name || appointment.patientName || 'Unknown';
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>${new Date(appointment.date).toLocaleString()}</td>
-            <td>${appointment.patient.name}</td>
+            <td>${patientName}</td>
             <td>${appointment.symptoms || 'Not specified'}</td>
             <td>${appointment.type || 'Regular'}</td>
             <td><span class="badge bg-success">Confirmed</span></td>
             <td>
                 <button class="btn btn-sm btn-primary" onclick="startVideoCall('${appointment.id}')">Start Call</button>
-                <button class="btn btn-sm btn-info" onclick="showPrescriptionModal('${appointment.id}', '${appointment.patient.name}')">Prescribe</button>
+                <button class="btn btn-sm btn-info" onclick="showPrescriptionModal('${appointment.id}', '${patientName}')">Prescribe</button>
             </td>
         `;
         upcomingTable.appendChild(row);
@@ -58,15 +60,16 @@ function displayAppointments(appointments) {
     pastTable.innerHTML = '';
 
     pastAppointments.forEach(appointment => {
+        const patientName = appointment.patient?.name || appointment.patientName || 'Unknown';
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>${new Date(appointment.date).toLocaleString()}</td>
-            <td>${appointment.patient.name}</td>
+            <td>${patientName}</td>
             <td>${appointment.symptoms || 'Not specified'}</td>
             <td>${appointment.type || 'Regular'}</td>
             <td><span class="badge bg-secondary">Completed</span></td>
             <td>
-                <button class="btn btn-sm btn-info" onclick="showPrescriptionModal('${appointment.id}', '${appointment.patient.name}')">Prescribe</button>
+                <button class="btn btn-sm btn-info" onclick="showPrescriptionModal('${appointment.id}', '${patientName}')">Prescribe</button>
             </td>
         `;
         pastTable.appendChild(row);
@@ -76,9 +79,10 @@ function displayAppointments(appointments) {
     const appointmentSelect = document.getElementById('prescription-appointment');
     appointmentSelect.innerHTML = '<option value="">Select Appointment</option>';
     appointments.forEach(appointment => {
+        const patientName = appointment.patient?.name || appointment.patientName || 'Unknown';
         const option = document.createElement('option');
         option.value = appointment.id;
-        option.textContent = `${appointment.patient.name} - ${new Date(appointment.date).toLocaleString()}`;
+        option.textContent = `${patientName} - ${new Date(appointment.date).toLocaleString()}`;
         appointmentSelect.appendChild(option);
     });
 }
