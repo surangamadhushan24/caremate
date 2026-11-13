@@ -1,10 +1,14 @@
 async function loadDoctorsBySpecialty(specialty) {
   try {
-    const response = await fetch(`http://localhost:8080/doctors?specialty=${specialty}`, {
+    const response = await fetch(`http://localhost:8080/doctors?specialty=${encodeURIComponent(specialty)}`, {
       headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
     });
     if (response.ok) {
-      const doctors = await response.json();
+      const responseData = await response.json();
+      const doctors = Array.isArray(responseData) ? responseData : responseData?.data;
+      if (!Array.isArray(doctors)) {
+        throw new TypeError('Expected doctor data to be an array');
+      }
       const doctorSelect = document.getElementById('appointment-doctor');
       doctorSelect.innerHTML = '<option value="">Select Doctor</option>';
       doctors.forEach(doctor => {
@@ -33,8 +37,8 @@ async function createAppointment() {
   loading.style.display = 'block';
 
   const appointmentData = {
-    doctorId: formData.get('doctor'),
-    date: `${formData.get('date')}T${formData.get('time')}:00Z`,
+    doctorId: Number(formData.get('doctor')),
+    date: `${formData.get('date')}T${formData.get('time')}`,
     symptoms: formData.get('reason')
   };
 
@@ -72,7 +76,11 @@ async function createAppointment() {
     loading.style.display = 'none';
 
     if (response.ok) {
-      const appointment = await response.json();
+      const responseData = await response.json();
+      const appointment = responseData?.data || responseData;
+      if (!appointment.id) {
+        throw new Error(responseData?.message || 'Appointment response did not include an ID');
+      }
       pendingAppointmentId = appointment.id;
       sentMessage.style.display = 'block';
       sentMessage.textContent = 'Appointment created. Please complete the payment to confirm.';
@@ -130,7 +138,7 @@ function displayAppointments(appointments) {
     const row = document.createElement('tr');
     row.innerHTML = `
       <td>${new Date(appointment.date).toLocaleString()}</td>
-      <td>${appointment.doctor?.name || 'Unknown'}</td>
+      <td>${appointment.doctor?.name || appointment.doctorName || 'Unknown'}</td>
       <td>${appointment.doctor?.specialty || 'N/A'}</td>
       <td><span class="badge bg-${appointment.status === 'CONFIRMED' ? 'success' : 'warning'}">${appointment.status}</span></td>
       <td><span class="badge bg-${paymentStatus === 'COMPLETED' ? 'success' : paymentStatus === 'PENDING' ? 'warning' : paymentStatus === 'NOT_FOUND' ? 'secondary' : 'danger'}">${paymentStatus}</span></td>

@@ -82,7 +82,11 @@ async function loadDashboardData() {
         ]);
 
         if (appointmentsRes.ok) {
-            const appointments = await appointmentsRes.json();
+            const responseData = await appointmentsRes.json();
+            const appointments = Array.isArray(responseData) ? responseData : responseData?.data;
+            if (!Array.isArray(appointments)) {
+                throw new TypeError('Expected appointment data to be an array');
+            }
             displayAppointments(appointments);
         } else {
             console.error('Failed to load appointments:', await appointmentsRes.text());
