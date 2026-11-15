@@ -129,7 +129,7 @@ async function login() {
 function updateUIForLoggedInUser(user) {
   document.getElementById('auth-links').style.display = 'none';
   document.getElementById('user-info').style.display = 'flex';
-  document.getElementById('user-role').textContent = `Hi, ${user.name} (${user.role})`;
+  document.getElementById('user-role').textContent = `Hi, ${user.name}`;
 }
 
 async function register() {
