@@ -54,42 +54,38 @@ function displayProfile(profile) {
     document.getElementById('profile-bio').value = profile.bio || '';
     document.getElementById('profile-education').value = profile.education || '';
 
-    // Fill availability form if available
-    if (profile.availability) {
-        document.getElementById('monday-check').checked = profile.availability.schedule.monday.available;
-        document.getElementById('monday-start').value = profile.availability.schedule.monday.startTime;
-        document.getElementById('monday-end').value = profile.availability.schedule.monday.endTime;
+    // The API exposes availability as a string; older responses may already be objects.
+    let availability = profile.availability;
+    if (typeof availability === 'string') {
+        try {
+            availability = JSON.parse(availability);
+        } catch (error) {
+            console.error('Failed to parse doctor availability:', error);
+            availability = null;
+        }
+    }
 
-        document.getElementById('tuesday-check').checked = profile.availability.schedule.tuesday.available;
-        document.getElementById('tuesday-start').value = profile.availability.schedule.tuesday.startTime;
-        document.getElementById('tuesday-end').value = profile.availability.schedule.tuesday.endTime;
+    const schedule = availability?.schedule;
+    const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+    if (schedule && days.every(day => schedule[day] && typeof schedule[day] === 'object')) {
+        days.forEach(day => {
+            const dayAvailability = schedule[day];
+            document.getElementById(`${day}-check`).checked = dayAvailability.available;
+            document.getElementById(`${day}-start`).value = dayAvailability.startTime || '';
+            document.getElementById(`${day}-end`).value = dayAvailability.endTime || '';
+        });
 
-        document.getElementById('wednesday-check').checked = profile.availability.schedule.wednesday.available;
-        document.getElementById('wednesday-start').value = profile.availability.schedule.wednesday.startTime;
-        document.getElementById('wednesday-end').value = profile.availability.schedule.wednesday.endTime;
+        ['saturday', 'sunday'].forEach(day => {
+            document.getElementById(`${day}-start`).disabled = !schedule[day].available;
+            document.getElementById(`${day}-end`).disabled = !schedule[day].available;
+        });
 
-        document.getElementById('thursday-check').checked = profile.availability.schedule.thursday.available;
-        document.getElementById('thursday-start').value = profile.availability.schedule.thursday.startTime;
-        document.getElementById('thursday-end').value = profile.availability.schedule.thursday.endTime;
-
-        document.getElementById('friday-check').checked = profile.availability.schedule.friday.available;
-        document.getElementById('friday-start').value = profile.availability.schedule.friday.startTime;
-        document.getElementById('friday-end').value = profile.availability.schedule.friday.endTime;
-
-        document.getElementById('saturday-check').checked = profile.availability.schedule.saturday.available;
-        document.getElementById('saturday-start').value = profile.availability.schedule.saturday.startTime;
-        document.getElementById('saturday-start').disabled = !profile.availability.schedule.saturday.available;
-        document.getElementById('saturday-end').value = profile.availability.schedule.saturday.endTime;
-        document.getElementById('saturday-end').disabled = !profile.availability.schedule.saturday.available;
-
-        document.getElementById('sunday-check').checked = profile.availability.schedule.sunday.available;
-        document.getElementById('sunday-start').value = profile.availability.schedule.sunday.startTime;
-        document.getElementById('sunday-start').disabled = !profile.availability.schedule.sunday.available;
-        document.getElementById('sunday-end').value = profile.availability.schedule.sunday.endTime;
-        document.getElementById('sunday-end').disabled = !profile.availability.schedule.sunday.available;
-
-        // Set appointment duration
-        document.querySelector(`input[name="appointmentDuration"][value="${profile.availability.appointmentDuration}"]`).checked = true;
+        const durationInput = document.querySelector(
+            `input[name="appointmentDuration"][value="${availability.appointmentDuration}"]`
+        );
+        if (durationInput) {
+            durationInput.checked = true;
+        }
     }
 }
 

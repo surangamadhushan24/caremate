@@ -64,6 +64,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // API Functions
 
+function getApiResponseData(responseData) {
+    return responseData && typeof responseData === 'object' && 'data' in responseData
+        ? responseData.data
+        : responseData;
+}
+
+function getApiResponseList(responseData, resourceName) {
+    const data = getApiResponseData(responseData);
+    if (!Array.isArray(data)) {
+        throw new TypeError(`Expected ${resourceName} data to be an array`);
+    }
+    return data;
+}
+
 async function loadDashboardData() {
     try {
         const [appointmentsRes, patientsRes, prescriptionsRes, profileRes] = await Promise.all([
@@ -82,32 +96,31 @@ async function loadDashboardData() {
         ]);
 
         if (appointmentsRes.ok) {
-            const responseData = await appointmentsRes.json();
-            const appointments = Array.isArray(responseData) ? responseData : responseData?.data;
-            if (!Array.isArray(appointments)) {
-                throw new TypeError('Expected appointment data to be an array');
-            }
+            const appointments = getApiResponseList(await appointmentsRes.json(), 'appointment');
             displayAppointments(appointments);
         } else {
             console.error('Failed to load appointments:', await appointmentsRes.text());
         }
 
         if (patientsRes.ok) {
-            const patients = await patientsRes.json();
+            const patients = getApiResponseList(await patientsRes.json(), 'patient');
             displayPatients(patients);
         } else {
             console.error('Failed to load patients:', await patientsRes.text());
         }
 
         if (prescriptionsRes.ok) {
-            const prescriptions = await prescriptionsRes.json();
+            const prescriptions = getApiResponseList(await prescriptionsRes.json(), 'prescription');
             displayPrescriptions(prescriptions);
         } else {
             console.error('Failed to load prescriptions:', await prescriptionsRes.text());
         }
 
         if (profileRes.ok) {
-            const profile = await profileRes.json();
+            const profile = getApiResponseData(await profileRes.json());
+            if (!profile || typeof profile !== 'object' || Array.isArray(profile)) {
+                throw new TypeError('Expected doctor profile data to be an object');
+            }
             displayProfile(profile);
         } else {
             console.error('Failed to load profile:', await profileRes.text());
