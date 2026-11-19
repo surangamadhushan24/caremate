@@ -65,18 +65,26 @@ document.addEventListener('DOMContentLoaded', function () {
 // API Functions
 
 function getApiResponseData(responseData) {
-    return responseData && typeof responseData === 'object' && 'data' in responseData
+    return responseData &&
+        typeof responseData === 'object' &&
+        'data' in responseData
         ? responseData.data
         : responseData;
 }
 
 function getApiResponseList(responseData, resourceName) {
+
     const data = getApiResponseData(responseData);
+
     if (!Array.isArray(data)) {
-        throw new TypeError(`Expected ${resourceName} data to be an array`);
+        throw new TypeError(
+            `Expected ${resourceName} data to be an array`
+        );
     }
+
     return data;
 }
+
 
 async function loadDashboardData() {
     try {
