@@ -12,7 +12,12 @@ async function checkAuthStatus() {
         });
 
         if (response.ok) {
-            const user = await response.json();
+            const result = await response.json();
+            const user = result.data;
+
+            if (!user || !user.role) {
+                throw new Error('Invalid user data received');
+            }
             if (user.role.toUpperCase() !== 'DOCTOR') {
                 window.location.href = `/${user.role.toLowerCase()}/dashboard.html`;
                 return;
