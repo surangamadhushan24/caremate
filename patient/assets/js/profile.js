@@ -23,11 +23,14 @@ async function updateProfile() {
       body: JSON.stringify(profileData)
     });
 
+    console.log(profileData);
+
     if (response.ok) {
       const contentType = response.headers.get('content-type');
       let updatedProfile = {};
       if (contentType && contentType.includes('application/json')) {
         updatedProfile = await response.json();
+        console.log(updatedProfile);
       } else {
         console.warn('Non-JSON response received:', await response.text());
       }
