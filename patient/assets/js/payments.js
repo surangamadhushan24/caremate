@@ -16,6 +16,12 @@ async function initiatePayment(appointmentId, amount) {
   paymentModal.show();
 
   try {
+    // Validate amount first
+    const numericAmount = parseFloat(amount);
+    if (isNaN(numericAmount) || numericAmount <= 0) {
+      throw new Error('Invalid payment amount');
+    }
+
     const profileResponse = await fetch('http://localhost:8080/patients/me', {
       headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
     });
@@ -25,7 +31,7 @@ async function initiatePayment(appointmentId, amount) {
     }
 
     const result = await profileResponse.json();
-    const profile = result.data;   // ← IMPORTANT FIX
+    const profile = result.data;
 
     if (!profile || !profile.email || !profile.name) {
       alert('Please update your profile with email and name to proceed with payment.');
@@ -35,7 +41,7 @@ async function initiatePayment(appointmentId, amount) {
 
     const paymentData = {
       appointmentId: appointmentId,
-      amount: parseFloat(amount).toFixed(2),
+      amount: Number(numericAmount.toFixed(2)),   // send as proper number
       currency: 'LKR',
       returnUrl: `${window.location.origin}/patient/dashboard.html?payment_status=success`,
       cancelUrl: `${window.location.origin}/patient/dashboard.html?payment_status=cancelled`,
